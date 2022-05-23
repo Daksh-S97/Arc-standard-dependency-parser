@@ -65,7 +65,8 @@ class ParserState:
         <END-OF-INPUT> should not be shifted onto the stack ever.
         """
         # STUDENT
-        raise NotImplementedError
+        return True if len(self.stack)==1 and len(self.input_buffer)==1 else False
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -123,7 +124,11 @@ class ParserState:
         :return a new DepGraphEdge object for the arc from modifier to head
         """
         #STUDENT
-        raise NotImplementedError
+        emb = self.combiner(head[2], modifier[2])
+        self.input_buffer.insert(0,StackEntry(head[0], head[1], emb))
+        dep = DepGraphEdge((head[0],head[1]), (modifier[0],modifier[1]))
+        return dep
+        #raise NotImplementedError
 
         #END STUDENT
 
@@ -141,7 +146,26 @@ class ParserState:
         :return action_to_do: either the chosen action or the default legal one
         """
         # STUDENT
-        raise NotImplementedError
+        if action_to_do == 0 and len(self.input_buffer) <= 2:
+            if len(self.stack)==0:
+                return 0
+            else:
+                return 2
+            
+        elif len(self.stack)==0:
+            print('action',action_to_do)
+            return 0     
+            
+        elif action_to_do == 1 and self.stack[-1][0] == ROOT_TOK:
+            print(len(self.input_buffer))
+            if len(self.input_buffer)==2:
+                return 2
+            else:
+                return 0
+        
+        else:
+            return action_to_do
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -156,7 +180,16 @@ class ParserState:
         """
         # STUDENT
         # hint: use list.pop() to get and remove the left and right items
-        raise NotImplementedError
+        if action == 1:
+            head = self.input_buffer.pop(0)
+            modifier = self.stack.pop()
+        else:
+            head = self.stack.pop()
+            modifier = self.input_buffer.pop(0)
+        
+        return head,modifier
+            
+        #raise NotImplementedError
 
         # END STUDENT
 
