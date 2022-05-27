@@ -158,7 +158,7 @@ class ParserState:
             
         elif action_to_do == 1 and self.stack[-1][0] == ROOT_TOK:
             print(len(self.input_buffer))
-            if len(self.input_buffer)==2:
+            if len(self.input_buffer)<=2:
                 return 2
             else:
                 return 0
@@ -260,7 +260,7 @@ class TransitionParser(nn.Module):
         outputs = [] # Holds the output of each action decision
         actions_done = [] # Holds all actions we have done
         dep_graph = set() # Build this up as you go
-
+        
         # Make the gold action queue if we have it
         if actions is not None:
             action_queue = deque()
@@ -269,9 +269,34 @@ class TransitionParser(nn.Module):
         else:
             have_gold_actions = False
 
+        i = 0
         while not parser_state.done_parsing():
             # STUDENT
-            raise NotImplementedError
+            feats = self.feature_extractor.get_features(parser_state)
+            ap = self.action_chooser(feats)
+            outputs.append(ap)
+            if have_gold_actions:
+                actions_done.append(action_queue[i])
+                action = action_queue[i]
+                i += 1
+                if action==0:
+                    parser_state.shift()
+                elif action==1:
+                    dep_graph.add(parser_state.arc_left())
+                else:
+                    dep_graph.add(parser_state.arc_right())
+            else:
+                
+                action = parser_state._validate_action(utils.argmax(ap))
+                actions_done.append(action)
+                if action==0:
+                    parser_state.shift()
+                elif action==1:
+                    dep_graph.add(parser_state.arc_left())
+                else:
+                    dep_graph.add(parser_state.arc_right())
+                        
+            #raise NotImplementedError
 
             # END STUDENT
         return outputs, dep_graph, actions_done

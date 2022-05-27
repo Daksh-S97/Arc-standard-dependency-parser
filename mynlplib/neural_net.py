@@ -48,7 +48,9 @@ class VanillaWordEmbedding(nn.Module):
 
         # STUDENT
         # name your embedding member "word_embeddings"
-        raise NotImplementedError
+        self.word_embeddings = nn.Embedding(len(self.word_to_ix),self.embedding_dim)
+        
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -63,6 +65,12 @@ class VanillaWordEmbedding(nn.Module):
         """
         embeds = [] # store each Variable in here
         # STUDENT
+        wid = torch.LongTensor([self.word_to_ix[word] for word in sentence])
+        emb = self.word_embeddings(wid)
+        for e in emb:
+            embeds.append(e.reshape(1,self.embedding_dim))
+            #print(embeds[-1].shape)
+            
 
         # END STUDENT
         return embeds
@@ -220,7 +228,10 @@ class FFCombiner(nn.Module):
         # 2. The second linear layer
         # The output of the first linear layer should be embedding_dim
         # (the rest of the input/output dims are thus determined)
-        raise NotImplementedError
+        self.lin1 = nn.Linear(2*embedding_dim, embedding_dim)
+        self.lin2 = nn.Linear(embedding_dim, embedding_dim)
+        self.tan = nn.Tanh()
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -234,6 +245,10 @@ class FFCombiner(nn.Module):
         :return The embedding of the combination as a row vector of shape (1, embedding_dim)
         """
         # STUDENT
+        inp = torch.hstack((head_embed, modifier_embed))
+        x = self.lin1(inp)
+        x = self.tan(x)
+        return self.lin2(x)
         raise NotImplementedError
 
         # END STUDENT
@@ -340,7 +355,11 @@ class FFActionChooser(nn.Module):
         # Construct in this order:
         # 1. The first linear layer (the one that is called first in the forward pass)
         # 2. The second linear layer
-        raise NotImplementedError
+        self.lin1 = nn.Linear(input_dim, input_dim)
+        self.relu = nn.ReLU()
+        self.lin2 = nn.Linear(input_dim, 3)
+        self.lsoftmax = nn.LogSoftmax(dim=1)
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -353,7 +372,13 @@ class FFActionChooser(nn.Module):
             (it is a row vector, with an entry for each action)
         """
         # STUDENT
-        raise NotImplementedError
+        inp = torch.cat(inputs,1)
+        #print(inp.shape)
+        x = self.lin1(inp)
+        x = self.relu(x)
+        x = self.lin2(x)
+        return self.lsoftmax(x)
+        #raise NotImplementedError
 
         # END STUDENT
 

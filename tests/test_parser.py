@@ -282,15 +282,17 @@ def test_parse_logic_d3_1():
     parser = TransitionParser(feat_extract, word_embed, act_chooser, combiner)
     output, dep_graph, actions_done = parser(test_sent[:-1], gold)
    
+    print(output)
     assert len(output) == 16 # Made the right number of decisions
-
-    # check one of the outputs
+    
+    #check one of the outputs
     checked_out = output[9].view(-1).data.tolist()
     true_out = [-0.9270416498184204, -1.2309694290161133, -1.1638933420181274]
     check_tensor_correctness([(true_out, checked_out)])
 
     true_dep_graph = dependency_graph_from_oracle(test_sent, gold)
     assert true_dep_graph == dep_graph
+    print(actions_done)
     assert actions_done == [ 0, 1, 0, 1, 0, 0, 1, 2, 0, 0, 0, 1, 2, 2, 2, 0]
 
 def test_predict_after_train_d3_1():

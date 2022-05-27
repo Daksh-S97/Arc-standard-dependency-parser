@@ -12,6 +12,11 @@ class SimpleFeatureExtractor:
         """
         # STUDENT
         # hint: parser_state.stack_peek_n
+        stac = parser_state.stack_peek_n(1)[0][2]
+        inps = parser_state.input_buffer_peek_n(2)
+        inp1 = inps[0][2]
+        inp2 = inps[1][2]
+        return [stac,inp1,inp2]
         raise NotImplementedError
 
         # END STUDENT
