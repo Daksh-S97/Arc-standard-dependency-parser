@@ -109,7 +109,9 @@ class BiLSTMWordEmbedding(nn.Module):
         # Note we want the output dim to be hidden_dim, but since our LSTM
         # is bidirectional, we need to make the output of each direction hidden_dim/2
         # name your embedding member "word_embeddings"
-        raise NotImplementedError
+        self.word_embeddings = nn.Embedding(len(self.word_to_ix), self.word_embedding_dim)
+        self.lstm = nn.LSTM(self.word_embedding_dim, self.output_dim//2, bidirectional = True)
+        #raise NotImplementedError
 
         # END STUDENT
 
@@ -133,8 +135,16 @@ class BiLSTMWordEmbedding(nn.Module):
         assert self.word_to_ix is not None, "ERROR: Make sure to set word_to_ix on \
                 the embedding lookup components"
         # STUDENT
-        raise NotImplementedError
-
+        embeds = [] 
+        wid = torch.LongTensor([self.word_to_ix[word] for word in sentence])
+        embs = self.word_embeddings(wid)
+        for emb in embs:
+            _, h = self.lstm(emb.view([1,1,self.word_embedding_dim]), self.hidden)
+            self.hidden = h
+            embeds.append(h[0].reshape(1,self.output_dim))
+    
+        #raise NotImplementedError
+        return embeds
         # END STUDENT
 
     def init_hidden(self):
