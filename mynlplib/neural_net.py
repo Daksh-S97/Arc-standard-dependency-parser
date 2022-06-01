@@ -140,7 +140,6 @@ class BiLSTMWordEmbedding(nn.Module):
         wid = torch.LongTensor([self.word_to_ix[word] for word in sentence])
         embs = self.word_embeddings(wid)
         x, self.hidden = self.lstm(embs.view([len(sentence),1,-1]), self.hidden)
-        #embeds.append(h[0].reshape(1,self.output_dim))
         
         #raise NotImplementedError
         return list(x)
@@ -326,10 +325,11 @@ class LSTMCombiner(nn.Module):
         """
         # STUDENT
         #raise NotImplementedError
-        emb = torch.cat((head_embed,modifier_embed))
-        x, _ = self.lstm(emb.view([1,1,-1]))
+        emb = torch.hstack((head_embed,modifier_embed))
+        #print(emb.shape)
+        x, self.hidden = self.lstm(emb.view([1,1,-1]), self.hidden)
         
-        return x
+        return x.view([1,self.embedding_dim])
 
         # END STUDENT
 
@@ -395,7 +395,7 @@ class FFActionChooser(nn.Module):
             (it is a row vector, with an entry for each action)
         """
         # STUDENT
-        inp = torch.cat(inputs,1)
+        inp = torch.cat(inputs,dim=1)
         #print(inp.shape)
         x = self.lin1(inp)
         x = self.relu(x)
@@ -432,8 +432,12 @@ class LSTMActionChooser(nn.Module):
         # Construct in this order:
         # 1. The LSTM layer 
         # 2. The linear layer to predict actions
-        raise NotImplementedError
-
+        #raise NotImplementedError
+        self.lstm  = nn.LSTM(self.input_dim, self.input_dim, num_layers = self.num_layers, dropout=dropout) 
+        self.relu = nn.ReLU()
+        self.lin = nn.Linear(self.input_dim, 3)
+        self.ls = nn.LogSoftmax(dim=1)
+                             
         # END STUDENT
         self.hidden = self.init_hidden()
     
@@ -446,6 +450,11 @@ class LSTMActionChooser(nn.Module):
             (it is a row vector, with an entry for each action)
         """
         # STUDENT
+        inp = torch.cat(inputs,dim=1)
+        x,self.hidden = self.lstm(inp.view([1,1,-1]), self.hidden)
+        x = self.relu(x.reshape(1,self.input_dim))
+        x = self.lin(x)
+        return self.ls(x)
         raise NotImplementedError
 
         # END STUDENT
