@@ -35,7 +35,10 @@ def initialize_with_pretrained(pretrained_embeds, word_embedding):
         or BiLSTMWordEmbedding)
     """
     # STUDENT
-    raise NotImplementedError
+    for word in word_embedding.word_to_ix:
+        if word in pretrained_embeds:
+            word_embedding.word_embeddings.weight.detach()[word_embedding.word_to_ix[word]] = torch.Tensor(pretrained_embeds[word])
+    #raise NotImplementedError
 
     # END STUDENT
 
@@ -49,7 +52,9 @@ def build_suff_to_ix(word_to_ix):
     """
     suffset = set()
     # STUDENT
-    raise NotImplementedError
+    for word in word_to_ix:
+        suffset.add(word[-2:])
+    #raise NotImplementedError
 
     # END STUDENT
     suff_to_ix = {c: i for i, c in enumerate(sorted(suffset))}
