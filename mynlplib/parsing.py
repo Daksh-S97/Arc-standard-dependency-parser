@@ -153,11 +153,11 @@ class ParserState:
                 return 2
             
         elif len(self.stack)==0:
-            print('action',action_to_do)
+            #print('action',action_to_do)
             return 0     
             
         elif action_to_do == 1 and self.stack[-1][0] == ROOT_TOK:
-            print(len(self.input_buffer))
+            #print(len(self.input_buffer))
             if len(self.input_buffer)<=2:
                 return 2
             else:
